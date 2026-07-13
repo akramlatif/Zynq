@@ -303,12 +303,12 @@ async function seed() {
 
   // ─── 6. Create Sales Log Entries ───────────────────────────
 
-  const panadol = insertedProducts.find((p) => p.name === "Panadol Extra")!;
-  const ors = insertedProducts.find((p) => p.name === "ORS Sachets")!;
-  const augmentin = insertedProducts.find((p) => p.name === "Augmentin 625mg")!;
-  const brufen = insertedProducts.find((p) => p.name === "Brufen 400mg")!;
-  const centrum = insertedProducts.find((p) => p.name === "Centrum Multivitamin")!;
-  const ensure = insertedProducts.find((p) => p.name === "Ensure Vanilla 400g")!;
+  const panadol = insertedProducts.find((p: any) => p.name === "Panadol Extra")!;
+  const ors = insertedProducts.find((p: any) => p.name === "ORS Sachets")!;
+  const augmentin = insertedProducts.find((p: any) => p.name === "Augmentin 625mg")!;
+  const brufen = insertedProducts.find((p: any) => p.name === "Brufen 400mg")!;
+  const centrum = insertedProducts.find((p: any) => p.name === "Centrum Multivitamin")!;
+  const ensure = insertedProducts.find((p: any) => p.name === "Ensure Vanilla 400g")!;
 
   const salesData = [
     { shop_id: shop.id, product_id: panadol.id, quantity_sold: 3, sale_price: "25.00" },

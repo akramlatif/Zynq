@@ -70,7 +70,7 @@ export async function runDailyStockAndExpiryAlert(targetShopId?: string) {
 
       if (expiringRes.rows.length > 0) {
         message += `⚠️ *جلد ایکسپائر ہونے والی اشیاء:*\n`;
-        expiringRes.rows.forEach(p => {
+        expiringRes.rows.forEach((p: any) => {
           message += `• ${p.name} (${p.quantity} موجود) - ${new Date(p.expiry_date).toLocaleDateString('ur-PK')}\n`;
         });
         message += `\n`;
@@ -78,7 +78,7 @@ export async function runDailyStockAndExpiryAlert(targetShopId?: string) {
 
       if (lowStockRes.rows.length > 0) {
         message += `📉 *کم اسٹاک والی اشیاء:*\n`;
-        lowStockRes.rows.forEach(p => {
+        lowStockRes.rows.forEach((p: any) => {
           message += `• ${p.name} (صرف ${p.quantity} باقی)\n`;
         });
       }
@@ -151,7 +151,7 @@ export async function runWeeklySummaryAlert(targetShopId?: string) {
 
       if (topSellersRes.rows.length > 0) {
         message += `🏆 *سب سے زیادہ فروخت ہونے والی اشیاء:*\n`;
-        topSellersRes.rows.forEach((p, i) => {
+        topSellersRes.rows.forEach((p: any, i: number) => {
           message += `${i + 1}. ${p.name} - ${p.qty} یونٹ (Rs ${Number(p.total_sales).toLocaleString()})\n`;
         });
       } else {

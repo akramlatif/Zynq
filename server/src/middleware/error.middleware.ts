@@ -43,6 +43,10 @@ export class ApiError extends Error {
   static tooMany(message = "Too many requests") {
     return new ApiError(429, message, "RATE_LIMITED");
   }
+
+  static internal(message = "Internal server error") {
+    return new ApiError(500, message, "INTERNAL_ERROR");
+  }
 }
 
 import { pool } from "../db";

@@ -4,8 +4,11 @@
 // ============================================================
 
 import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+import postgres from "postgres";
 import { config } from "../config";
 import { logger } from "../utils/logger";
+import * as schema from "./models";
 
 // Create a new PostgreSQL connection pool
 export const pool = new Pool({
@@ -19,10 +22,16 @@ pool.on("connect", () => {
   logger.info("🟢 Database connected successfully");
 });
 
-pool.on("error", (err) => {
+pool.on("error", (err: Error) => {
   logger.error("🔴 Unexpected error on idle client", err);
   process.exit(-1);
 });
+
+// Initialize Drizzle ORM client
+export const db = drizzle(pool, { schema });
+
+// Initialize connection for raw SQL queries/scripts (like reset.ts)
+export const connection = postgres(config.db.url);
 
 /**
  * Helper to execute queries
@@ -38,5 +47,6 @@ export async function query(text: string, params?: any[]) {
 /** Graceful shutdown helper */
 export async function closeDatabase(): Promise<void> {
   await pool.end();
+  await connection.end();
   logger.info("🔌 Database connection closed");
 }

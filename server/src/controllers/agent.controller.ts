@@ -62,7 +62,7 @@ export async function handleChat(
     );
 
     const stateKey = `${shopId}_${userId}`;
-    const pending = conversationState.get(stateKey);
+    const pending = await conversationState.get(stateKey);
 
     let reply = "";
     let action_taken = null;
@@ -209,7 +209,7 @@ export async function handleVoice(
     );
 
     const stateKey = `${shopId}_${userId}`;
-    const pending = conversationState.get(stateKey);
+    const pending = await conversationState.get(stateKey);
 
     let reply = "";
     let action_taken = null;

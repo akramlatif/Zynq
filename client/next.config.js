@@ -67,8 +67,8 @@ const withPWA = require("next-pwa")({
 const nextConfig = withPWA({
   reactStrictMode: true,
 
-  // Enable standalone output for Docker deployments
-  output: "standalone",
+  // Removed standalone output as it causes issues in this workspace setup
+  optimizeFonts: false,
 
   // API proxy to backend in development
   async rewrites() {
