@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc; /* Slate 50 */
+  --foreground: #0f172a; /* Slate 900 */
+  
+  --primary-hsl: 173 77% 26%; /* #0f766e - Teal 700 */
+  --accent-hsl: 45 93% 47%; /* #ca8a04 - Yellow 600 */
+  --card-bg: 255 255 255 / 0.7;
+  --card-border: 214.3 31.8% 91.4% / 0.5; /* slate-200/50 */
+}
+
+.dark {
+  --background: #0f1729; /* Deep dark navy */
+  --foreground: #e2e8f0; /* Slate 200 */
+
+  --primary-hsl: 173 77% 35%;
+  --accent-hsl: 45 93% 57%;
+  --card-bg: 30 41 59 / 0.80; /* slate-800 with transparency */
+  --card-border: 120 138 161 / 0.18;
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.06), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(34, 211, 238, 0.05), transparent 22%),
+    linear-gradient(180deg, #0f1729 0%, #111d35 100%);
+}
+
+.dark body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.06), transparent 32%),
+    radial-gradient(circle at 85% 18%, rgba(14, 165, 233, 0.04), transparent 26%),
+    radial-gradient(circle at 50% 82%, rgba(34, 197, 94, 0.03), transparent 28%);
+  opacity: 0.85;
+}
+
+/* Glassmorphism card system */
+.glass-card {
+  background: rgba(var(--card-bg));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(var(--card-border));
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+  border-color: rgba(var(--primary-hsl) / 0.2);
+}
+
+.dark .glass-card {
+  background:
+    linear-gradient(180deg, rgba(30, 41, 59, 0.92) 0%, rgba(45, 55, 72, 0.88) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 0 1px rgba(56, 189, 248, 0.05);
+}
+
+.dark .glass-card:hover {
+  border-color: rgba(56, 189, 248, 0.20);
+  box-shadow:
+    0 26px 70px rgba(0, 0, 0, 0.30),
+    0 0 0 1px rgba(56, 189, 248, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Premium micro-interactions */
+.glow-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-effect::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 55%
+  );
+  transform: rotate(45deg) translate(-100%, -100%);
+  transition: all 0.6s ease;
+}
+
+.glow-effect:hover::after {
+  transform: rotate(45deg) translate(100%, 100%);
+}
+
+/* Typography polish for Urdu Nastaliq */
+.font-urdu {
+  font-family: var(--font-noto-nastaliq), sans-serif;
+  line-height: 2.2 !important;
+  font-size: 1.15rem;
+  direction: rtl;
+  text-align: right;
+  padding: 0.25rem 0;
+}
+
+/* Dynamic Entrance Animations */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up-fade {
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Serrated receipts styling */
+.receipt-serrated {
+  position: relative;
+  background: white;
+}
+
+.dark .receipt-serrated {
+  background: rgba(30, 41, 59, 0.98);
+}
+
+.receipt-serrated::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background-size: 16px 16px;
+  background-repeat: repeat-x;
+  background-image: linear-gradient(-45deg, var(--background) 8px, transparent 0),
+                    linear-gradient(45deg, var(--background) 8px, transparent 0);
+}
+
+/* Smooth scroll for settings */
+html {
+  scroll-behavior: smooth;
+}

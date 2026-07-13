@@ -1,0 +1,29 @@
+{
+  "name": "Zynq — Smart Dukan Assistant",
+  "short_name": "Zynq",
+  "description": "AI-powered inventory management for Pakistani small businesses. Manage stock, billing, and udhaar with voice commands in Urdu.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f766e",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "finance", "productivity"],
+  "lang": "en",
+  "dir": "auto",
+  "prefer_related_applications": false
+}

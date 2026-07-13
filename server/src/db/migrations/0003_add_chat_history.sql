@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS conversation_history ( id UUID PRIMARY KEY DEFAULT gen_random_uuid(), shop_id UUID NOT NULL REFERENCES shops(id) ON DELETE CASCADE, conversation_id VARCHAR(100) NOT NULL, role VARCHAR(10) NOT NULL, message TEXT NOT NULL, intent_detected VARCHAR(50), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW() ); 
