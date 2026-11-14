@@ -176,6 +176,7 @@ export default function DashboardPage() {
         <div className="space-y-6">
           <div className="glass-card p-6 rounded-2xl">
             <h3 className="font-extrabold text-slate-900 dark:text-white mb-4 text-base tracking-tight">Top 5 Sellers</h3>
+            rows start
             <div className="space-y-4">
               {data?.topSellers.map((item: any, i: number) => (
                 <div key={item.id} className="flex items-center justify-between group">
@@ -187,7 +188,7 @@ export default function DashboardPage() {
                       <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.name}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{item.sold} units sold</p>
                     </div>
-                    </div>
+                  </div>
                   <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
                     Rs {item.revenue.toLocaleString()}
                   </span>
@@ -209,10 +210,10 @@ export default function DashboardPage() {
                   </div>
                   <div className="px-3 py-1 bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400 rounded-full text-xs font-bold border border-red-200 dark:border-red-900/30">
                     {item.stock} left
-                  </button>
                   </div>
                 </div>
               ))}
+            </newdiv>
             </div>
           </div>
         </div>
