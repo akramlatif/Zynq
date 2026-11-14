@@ -50,7 +50,7 @@ export default function DashboardPage() {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const { data: apiData, isLoading, error } = useQuery({
+  const { data: apiData, isLoading } = useQuery({
     queryKey: ['dashboard'],
     queryFn: fetchDashboardData,
     refetchInterval: 60000,
@@ -147,20 +147,20 @@ export default function DashboardPage() {
               <BarChart data={data?.revenueData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.95}/>
-                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0.8}/>
+                    <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.95} />
+                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0.8} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#334155' : '#e2e8f0'} />
                 <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 12, fontWeight: 500 }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 12, fontWeight: 500 }} dx={-10} tickFormatter={(val) => `Rs ${val / 1000}k`} />
-                <Tooltip 
-                  cursor={{ fill: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(15, 118, 110, 0.05)', radius: 8 }} 
-                  contentStyle={{ 
-                    borderRadius: '16px', 
-                    border: isDark ? '1px solid rgba(148, 163, 184, 0.16)' : '1px solid rgba(15, 118, 110, 0.1)', 
+                <Tooltip
+                  cursor={{ fill: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(15, 118, 110, 0.05)', radius: 8 }}
+                  contentStyle={{
+                    borderRadius: '16px',
+                    border: isDark ? '1px solid rgba(148, 163, 184, 0.16)' : '1px solid rgba(15, 118, 110, 0.1)',
                     background: isDark ? 'rgba(30, 41, 59, 0.98)' : 'rgba(255, 255, 255, 0.95)',
-                    boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.10)' 
+                    boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.10)',
                   }}
                   itemStyle={{ color: isDark ? '#e2e8f0' : '#0f766e', fontWeight: 600 }}
                   labelStyle={{ color: isDark ? '#e2e8f0' : '#64748b', fontWeight: 700 }}
@@ -176,7 +176,6 @@ export default function DashboardPage() {
         <div className="space-y-6">
           <div className="glass-card p-6 rounded-2xl">
             <h3 className="font-extrabold text-slate-900 dark:text-white mb-4 text-base tracking-tight">Top 5 Sellers</h3>
-            rows start
             <div className="space-y-4">
               {data?.topSellers.map((item: any, i: number) => (
                 <div key={item.id} className="flex items-center justify-between group">
@@ -213,7 +212,6 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
-            </newdiv>
             </div>
           </div>
         </div>
