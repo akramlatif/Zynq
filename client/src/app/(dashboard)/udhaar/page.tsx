@@ -15,25 +15,53 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+// Matches GET /api/udhaar response rows (grouped per customer)
 interface OutstandingCustomer {
   customer_name: string;
   customer_phone: string | null;
-  outstanding: number;
-  entries: number;
-  oldest_due?: string | null;
-  id?: string;
+  total_unpaid: number | string; // Postgres SUM() returns a string via JSON
+  unpaid_records: number | string;
+}
+
+// Matches GET /api/udhaar/:customerName response rows
+interface UdhaarEntry {
+  id: string;
+  customer_name: string;
+  customer_phone: string | null;
+  amount: number;
+  is_paid: boolean;
+  note: string | null;
+  created_at: string;
 }
 
 async function fetchOutstanding(): Promise<OutstandingCustomer[]> {
   const res = await fetch('/api/udhaar');
   if (!res.ok) throw new Error('Failed to fetch udhaar records');
-  return res.json();
+  const body = await res.json();
+  return body.data ?? [];
 }
 
-async function markAsPaid(id: string): Promise<void> {
-  const res = await fetch(`/api/udhaar/${id}/pay`, { method: 'PATCH' });
-  if (!res.ok) throw new Error('Failed to mark as paid');
+/**
+ * Marks every unpaid entry for a customer as paid.
+ * The outstanding endpoint returns aggregated rows without record ids,
+ * so we fetch the customer's history first, then pay each open entry.
+ */
+async function markCustomerFullyPaid(customerName: string): Promise<void> {
+  const historyRes = await fetch(`/api/udhaar/${encodeURIComponent(customerName)}`);
+  if (!historyRes.ok) throw new Error('Failed to fetch udhaar history');
+  const historyBody = await historyRes.json();
+  const entries: UdhaarEntry[] = historyBody.data ?? [];
+  const unpaid = entries.filter((e) => !e.is_paid);
+
+  if (unpaid.length === 0) return;
+
+  for (const entry of unpaid) {
+    const payRes = await fetch(`/api/udhaar/${entry.id}/pay`, { method: 'PATCH' });
+    if (!payRes.ok) throw new Error('Failed to mark as paid');
+  }
 }
+
+const toNum = (v: number | string | null | undefined) => Number(v ?? 0);
 
 export default function UdhaarPage() {
   const queryClient = useQueryClient();
@@ -46,9 +74,9 @@ export default function UdhaarPage() {
   });
 
   const payMutation = useMutation({
-    mutationFn: markAsPaid,
-    onSuccess: () => {
-      toast.success('Udhaar marked as paid');
+    mutationFn: markCustomerFullyPaid,
+    onSuccess: (_data, customerName) => {
+      toast.success(`Marked all udhaar for ${customerName} as paid`);
       queryClient.invalidateQueries({ queryKey: ['udhaar'] });
     },
     onError: () => toast.error('Could not mark as paid. Please try again.'),
@@ -66,8 +94,8 @@ export default function UdhaarPage() {
     );
   }, [customers, search]);
 
-  const totalOutstanding = customers.reduce((s, c) => s + c.outstanding, 0);
-  const maxOutstanding = Math.max(...customers.map((c) => c.outstanding), 1);
+  const totalOutstanding = customers.reduce((s, c) => s + toNum(c.total_unpaid), 0);
+  const maxOutstanding = Math.max(...customers.map((c) => toNum(c.total_unpaid)), 1);
 
   const stats = [
     {
@@ -86,7 +114,7 @@ export default function UdhaarPage() {
     },
     {
       label: 'Open Entries',
-      value: customers.reduce((s, c) => s + c.entries, 0),
+      value: customers.reduce((s, c) => s + toNum(c.unpaid_records), 0),
       icon: CalendarClock,
       accent: 'border-l-amber-500 text-amber-500',
       iconBg: 'bg-amber-500/10 border-amber-500/20',
@@ -172,11 +200,11 @@ export default function UdhaarPage() {
         ) : (
           <div className="divide-y divide-slate-200/70 dark:divide-slate-800/70">
             {filtered.map((account) => {
-              const overdue = account.oldest_due ? new Date(account.oldest_due) < new Date() : false;
-              const payTarget = account.id ?? account.customer_name;
+              const outstanding = toNum(account.total_unpaid);
+              const entries = toNum(account.unpaid_records);
               return (
                 <div
-                  key={account.customer_name}
+                  key={`${account.customer_name}-${account.customer_phone ?? ''}`}
                   className="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 hover:bg-slate-50/80 dark:hover:bg-slate-900/60 transition-colors"
                 >
                   <div className="flex items-center gap-4 min-w-0">
@@ -190,31 +218,24 @@ export default function UdhaarPage() {
                           <PhoneCall className="w-3.5 h-3.5" />{account.customer_phone}
                         </p>
                       )}
-                      <p className="text-xs text-slate-400 mt-0.5">{account.entries} entr{account.entries === 1 ? 'y' : 'ies'} open</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{entries} entr{entries === 1 ? 'y' : 'ies'} open</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="text-lg font-bold text-slate-900 dark:text-white">Rs {account.outstanding.toLocaleString()}</p>
-                      {overdue ? (
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 dark:text-red-400">
-                          <AlertCircle className="w-3 h-3" /> Overdue
-                        </span>
-                      ) : (
-                        <span className="text-xs text-slate-500 dark:text-slate-400">Within terms</span>
-                      )}
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">Rs {outstanding.toLocaleString()}</p>
                       {/* Balance severity bar */}
                       <div className="mt-1.5 h-1.5 w-28 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${overdue ? 'bg-red-500' : 'bg-primary'}`}
-                          style={{ width: `${Math.min((account.outstanding / maxOutstanding) * 100, 100)}%` }}
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${Math.min((outstanding / maxOutstanding) * 100, 100)}%` }}
                         />
                       </div>
                     </div>
 
                     <button
-                      onClick={() => payMutation.mutate(payTarget)}
+                      onClick={() => payMutation.mutate(account.customer_name)}
                       disabled={payMutation.isPending}
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-sm text-sm font-semibold disabled:opacity-50"
                     >
@@ -224,7 +245,7 @@ export default function UdhaarPage() {
 
                     <button
                       onClick={() => {
-                        const msg = `Assalam-o-Alaikum! Friendly reminder from your store: Rs ${account.outstanding.toLocaleString()} udhaar is pending. JazakAllah! 🙏`;
+                        const msg = `Assalam-o-Alaikum! Friendly reminder from your store: Rs ${outstanding.toLocaleString()} udhaar is pending. JazakAllah! 🙏`;
                         window.open(`https://wa.me/${account.customer_phone?.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
                       }}
                       disabled={!account.customer_phone}
