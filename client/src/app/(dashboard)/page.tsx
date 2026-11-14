@@ -2,9 +2,11 @@
 
 import { useAuth } from '@/stores/useAuth';
 import { useQuery } from '@tanstack/react-query';
-import { Banknote, Package, AlertTriangle, BookOpenCheck, Loader2 } from 'lucide-react';
+import { Banknote, Package, AlertTriangle, BookOpenCheck, Loader2, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '@/providers/ThemeProvider';
+import { format, subDays } from 'date-fns';
 
 // Mock data for when the backend is unavailable
 const MOCK_DASHBOARD = {
@@ -47,7 +49,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  
+
   const { data: apiData, isLoading, error } = useQuery({
     queryKey: ['dashboard'],
     queryFn: fetchDashboardData,
@@ -57,6 +59,10 @@ export default function DashboardPage() {
 
   // Use API data if available, otherwise fall back to mock data
   const data = apiData || MOCK_DASHBOARD;
+
+  // Live date range chip instead of a hardcoded one
+  const today = new Date();
+  const rangeLabel = `${format(subDays(today, 6), 'MMM d')} – ${format(today, 'MMM d, yyyy')}`;
 
   if (isLoading) {
     return (
@@ -77,7 +83,7 @@ export default function DashboardPage() {
         </div>
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-slate-200/70 dark:border-slate-600/50 bg-white/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 shadow-sm backdrop-blur-xl">
           <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_18px_rgba(34,211,238,0.75)]" />
-          <span className="text-sm font-semibold">Oct 16 - Oct 22, 2023</span>
+          <span className="text-sm font-semibold">{rangeLabel}</span>
         </div>
       </div>
 
@@ -85,7 +91,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="glass-card p-6 rounded-2xl flex items-center justify-between border-l-4 border-l-cyan-400">
           <div>
-            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Today's Revenue</h3>
+            <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Today&apos;s Revenue</h3>
             <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">Rs {data?.metrics.todayRevenue.toLocaleString()}</p>
             <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400">+12.5% this month</p>
           </div>
@@ -105,27 +111,31 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="glass-card p-6 rounded-2xl flex items-center justify-between border-l-4 border-l-amber-400">
+        <Link href="/inventory" className="glass-card p-6 rounded-2xl flex items-center justify-between border-l-4 border-l-amber-400 group hover:border-l-amber-500 transition-colors">
           <div>
             <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Low Stock Items</h3>
             <p className="text-2xl font-extrabold text-amber-600 dark:text-amber-300 mt-2">{data?.metrics.lowStockCount}</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Needs Attention</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 flex items-center gap-1 transition-colors">
+              Needs Attention <ArrowRight className="w-3.5 h-3.5" />
+            </p>
           </div>
           <div className="bg-amber-500/10 p-3.5 rounded-xl border border-amber-400/20 shadow-[0_0_25px_rgba(245,158,11,0.15)]">
             <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-300" />
           </div>
-        </div>
+        </Link>
 
-        <div className="glass-card p-6 rounded-2xl flex items-center justify-between border-l-4 border-l-cyan-400">
+        <Link href="/udhaar" className="glass-card p-6 rounded-2xl flex items-center justify-between border-l-4 border-l-emerald-400 group hover:border-l-emerald-500 transition-colors">
           <div>
             <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">Pending Udhaar</h3>
             <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-300 mt-2">Rs {data?.metrics.pendingUdhaar.toLocaleString()}</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">18 Records</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex items-center gap-1 transition-colors">
+              View accounts <ArrowRight className="w-3.5 h-3.5" />
+            </p>
           </div>
-          <div className="bg-cyan-500/10 p-3.5 rounded-xl border border-cyan-400/20 shadow-[0_0_25px_rgba(34,211,238,0.10)]">
-            <BookOpenCheck className="w-6 h-6 text-cyan-600 dark:text-cyan-300" />
+          <div className="bg-emerald-500/10 p-3.5 rounded-xl border border-emerald-400/20 shadow-[0_0_25px_rgba(16,185,129,0.10)]">
+            <BookOpenCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-300" />
           </div>
-        </div>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -145,7 +155,7 @@ export default function DashboardPage() {
                 <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 12, fontWeight: 500 }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: isDark ? '#94a3b8' : '#64748b', fontSize: 12, fontWeight: 500 }} dx={-10} tickFormatter={(val) => `Rs ${val / 1000}k`} />
                 <Tooltip 
-                  cursor={{ fill: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(15, 118, 110, 0.05)', radius: 8 }}
+                  cursor={{ fill: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(15, 118, 110, 0.05)', radius: 8 }} 
                   contentStyle={{ 
                     borderRadius: '16px', 
                     border: isDark ? '1px solid rgba(148, 163, 184, 0.16)' : '1px solid rgba(15, 118, 110, 0.1)', 
@@ -177,7 +187,7 @@ export default function DashboardPage() {
                       <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.name}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{item.sold} units sold</p>
                     </div>
-                  </div>
+                    </div>
                   <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
                     Rs {item.revenue.toLocaleString()}
                   </span>
@@ -199,6 +209,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="px-3 py-1 bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400 rounded-full text-xs font-bold border border-red-200 dark:border-red-900/30">
                     {item.stock} left
+                  </button>
                   </div>
                 </div>
               ))}
