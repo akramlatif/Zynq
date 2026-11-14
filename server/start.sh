@@ -1,6 +1,7 @@
 #!/bin/sh
 # ==========================================
 # ZYNQ — Docker Startup Script
+# (updated for monorepo Docker layout: server code lives in /app/server)
 # ==========================================
 
 echo "=========================================="
@@ -9,14 +10,12 @@ echo "=========================================="
 
 # 1. Run Migrations
 echo "[1/2] Running database migrations..."
-# Assuming a custom migration runner or drizzle-kit is available in the production build
-# If using Drizzle ORM, a custom script compiled to dist/db/migrate.js is usually best
-if [ -f "dist/db/migrate.js" ]; then
-  node dist/db/migrate.js
+if [ -f "server/dist/db/migrate.js" ]; then
+  node server/dist/db/migrate.js
 else
-  echo "⚠️  Migration script not found. Skipping migrations."
+  echo "⚠️  Migration script not found at server/dist/db/migrate.js. Skipping migrations."
 fi
 
 # 2. Start the Server
 echo "[2/2] Starting Express API Server..."
-exec node dist/app.js
+exec node server/dist/app.js
