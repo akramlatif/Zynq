@@ -7,7 +7,6 @@ import {
   PhoneCall,
   ArrowUpRight,
   CheckCircle2,
-  Loader2,
   Search,
   AlertCircle,
   Wallet,
@@ -16,23 +15,13 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-interface UdhaarRecord {
-  id: string;
-  customer_name: string;
-  customer_phone: string | null;
-  amount: number;
-  note?: string | null;
-  due_date?: string | null;
-  paid: boolean;
-  created_at: string;
-}
-
 interface OutstandingCustomer {
   customer_name: string;
   customer_phone: string | null;
   outstanding: number;
   entries: number;
   oldest_due?: string | null;
+  id?: string;
 }
 
 async function fetchOutstanding(): Promise<OutstandingCustomer[]> {
@@ -96,7 +85,7 @@ export default function UdhaarPage() {
       iconBg: 'bg-blue-500/10 border-blue-500/20',
     },
     {
-      label: 'Entries (approx. due this week)',
+      label: 'Open Entries',
       value: customers.reduce((s, c) => s + c.entries, 0),
       icon: CalendarClock,
       accent: 'border-l-amber-500 text-amber-500',
@@ -184,6 +173,7 @@ export default function UdhaarPage() {
           <div className="divide-y divide-slate-200/70 dark:divide-slate-800/70">
             {filtered.map((account) => {
               const overdue = account.oldest_due ? new Date(account.oldest_due) < new Date() : false;
+              const payTarget = account.id ?? account.customer_name;
               return (
                 <div
                   key={account.customer_name}
@@ -224,17 +214,12 @@ export default function UdhaarPage() {
                     </div>
 
                     <button
-                      onClick={() => {
-                        toast.promise(markAsPaid(account.customer_name), {
-                          loading: 'Marking as paid…',
-                          success: 'Marked as paid',
-                          error: 'Could not mark as paid',
-                        });
-                      }}
+                      onClick={() => payMutation.mutate(payTarget)}
+                      disabled={payMutation.isPending}
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors shadow-sm text-sm font-semibold disabled:opacity-50"
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      Mark Paid
+                      {payMutation.isPending ? 'Saving…' : 'Mark Paid'}
                     </button>
 
                     <button
